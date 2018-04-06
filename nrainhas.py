@@ -1,3 +1,4 @@
+import click
 from node import Node
 from utils import *
 
@@ -76,34 +77,28 @@ class NRainhasNode(Node):
         attack_coords = self.get_attacked_coords()
         attacked_queens = [coord for coord in queens_coords if coord in attack_coords]
 
-        return len(attacked_queens) == 0 and self.count_queens() == len(matrix)
+        return len(attacked_queens) == 0 and self.count_queens() == len(self.content)
+
+@click.command()
+@click.option('--rainhas', default=4, type=click.INT, help='Número de rainhas para o problema')
+@click.option('--busca', default='profundidade', type=click.Choice(['profundidade', 'largura', 'a-estrela']), help='Tipo de algorítmo de busca a ser utilizado')
+@click.option('--arquivo', default='nrainhas', help='Nome do arquivo(sem extensão) contendo o resultado')
+def nrainhas(rainhas, busca, arquivo):
+    matrix = []
+    for i in range(rainhas):
+        matrix.append([0 for j in range(rainhas)])
+    root = NRainhasNode(content=matrix, father=None)
+    
+    if busca == 'profundidade':
+        result = root.breadth_first_search()
+    elif busca == 'largura':
+        result = root.depth_first_search()
+    else:
+        result = root.best_first_search()
+    
+    print('Resultado::::')
+    print_tree(result)
 
 
 if __name__ == '__main__':
-    # matrix = [
-    #     [0,0,0,0,0,0],
-    #     [0,0,0,0,0,0],
-    #     [0,0,0,0,0,0],
-    #     [0,0,0,0,0,0],
-    #     [0,0,0,0,0,0],
-    #     [0,0,0,0,0,0],
-    # ]
-    # matrix = [
-    #     [0,0,0,0,0],
-    #     [0,0,0,0,0],
-    #     [0,0,0,0,0],
-    #     [0,0,0,0,0],
-    #     [0,0,0,0,0],
-    # ]
-    matrix = [
-        [0,0,0,0],
-        [0,0,0,0],
-        [0,0,0,0],
-        [0,0,0,0],
-    ]
-    root = NRainhasNode(content=matrix, father=None)
-    # result = root.breadth_first_search()
-    # result = root.depth_first_search()
-    result = root.best_first_search()
-    print('Resultado::::')
-    print_tree(result)
+    nrainhas()
