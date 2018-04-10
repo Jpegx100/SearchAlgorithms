@@ -1,3 +1,4 @@
+import click
 from utils import *
 from node import Node
 
@@ -68,11 +69,31 @@ class Jogo8Node(Node):
         return equals
 
 
-if __name__ == '__main__':
-    matrix = [[1,0,3],[7,2,6],[5,4,8]]
+@click.command()
+@click.option('--tabuleiro', default='103425786', help='Tabuleiro inicial contendo todos os números entre 0 e 8 sem repetição(Ex:103726548)')
+@click.option('--busca', default='a-estrela', type=click.Choice(['profundidade', 'largura', 'a-estrela']), help='Tipo de algorítmo de busca a ser utilizado')
+@click.option('--arquivo', default='jogo8', help='Nome do arquivo(sem extensão) contendo o resultado')
+def jogo_8(tabuleiro, busca, arquivo):
+    
+    if len(tabuleiro)!=9:
+        print('Tabuleiro em formato incorreto')
+        return
+
+    a,b,c,d,e,f,g,h,i = tabuleiro
+    matrix = [[int(a),int(b),int(c)],[int(d),int(e),int(f)],[int(g),int(h),int(i)]]
+
     root = Jogo8Node(content=matrix, father=None)
-    # result = root.breadth_first_search()
-    # result = root.depth_first_search()
-    result = root.best_first_search()
-    print('Resultado::::')
-    print_tree(result)
+    
+    if busca == 'profundidade':
+        result = root.breadth_first_search()
+    elif busca == 'largura':
+        result = root.depth_first_search()
+    else:
+        result = root.best_first_search()
+    
+    root.save_result(result)
+
+
+if __name__ == '__main__':
+    jogo_8()
+    print('Concluído')

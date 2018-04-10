@@ -79,6 +79,7 @@ class NRainhasNode(Node):
 
         return len(attacked_queens) == 0 and self.count_queens() == len(self.content)
 
+
 @click.command()
 @click.option('--rainhas', default=4, type=click.INT, help='Número de rainhas para o problema')
 @click.option('--busca', default='profundidade', type=click.Choice(['profundidade', 'largura', 'a-estrela']), help='Tipo de algorítmo de busca a ser utilizado')
