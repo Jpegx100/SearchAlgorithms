@@ -11,6 +11,7 @@ class Node():
             self.father.children.append(self)
         self.heuristic_value = self.get_heuristic_value()
         self.children = []
+        self.states_frontier = [self]        
     
     def get_heuristic_value(self):
         return self.depth() + self.heuristic()
@@ -29,46 +30,34 @@ class Node():
     def verify_matrix(self):
         raise NotImplementedError
     
+    def get_content(self):
+        raise NotImplementedError
+    
     def breadth_first_search(self):
-        states_frontier = [self]
-        for node in states_frontier:
+        for node in self.states_frontier:
             if node.verify_matrix():
                 return node
-            children = [child for child in node.expand_nodes() if not node_in_states(child, states_frontier)]
-            states_frontier.extend(children)
+            children = [child for child in node.expand_nodes() if not node_in_states(child, self.states_frontier)]
+            self.states_frontier.extend(children)
     
     def depth_first_search(self):
-        states_frontier = [self]
         repeated_states = [self]
-        while len(states_frontier)>0:
-            node = states_frontier.pop()
+        while len(self.states_frontier)>0:
+            node = self.states_frontier.pop()
             repeated_states.append(node)
             if node.verify_matrix():
                 return node
             children = [child for child in node.expand_nodes() if not node_in_states(child, repeated_states)]
-            states_frontier.extend(children)
+            self.states_frontier.extend(children)
     
     def best_first_search(self):
-        states_frontier = [self]
-        while len(states_frontier)>0:
-            node = min(states_frontier, key=attrgetter('heuristic_value'))
+        while len(self.states_frontier)>0:
+            node = min(self.states_frontier, key=attrgetter('heuristic_value'))
             if node.verify_matrix():
                 return node
-            children = [child for child in node.expand_nodes() if not node_in_states(child, states_frontier)]
-            states_frontier.extend(children)
+            children = [child for child in node.expand_nodes() if not node_in_states(child, self.states_frontier)]
+            self.states_frontier.extend(children)
             node.heuristic_value = 999999999
-    
-    def get_content(self):
-        sliced = '<div>'+str(self.content).replace('], [', '<br />').replace('[', '').replace(']', '').replace(',','').replace('0', '_')+'</div>'
-        return sliced
-    
-    def get_parsed_tree(self):
-        tree = {
-            "desc": self.get_content()
-        }
-        if self.children:
-            tree["children"] = [child.get_parsed_tree() for child in self.children]
-        return tree
     
     def get_parents(self, node):
         if node:
@@ -77,22 +66,24 @@ class Node():
             else:
                 return []
     
-    def create_tree(self, ul, root, best_solution):
+    def create_tree(self, ul, best_solution):
             li = etree.SubElement(ul, 'li')
             
-            if root["desc"] in best_solution:
-                root["desc"] = '<div class="best">' + root["desc"][5:]
-            elem = etree.fromstring(root["desc"])
+            if self in best_solution:
+                desc = '<div class="best">' + self.get_content()[5:]
+            else:
+                desc = self.get_content()
+
+            elem = etree.fromstring(desc)
             li.append(elem)
             
-            if 'children' in root:
+            if self.children:
                 ul = etree.SubElement(li, 'ul')
-                for child in root['children']:
-                    self.create_tree(ul, child, best_solution)
+                for child in self.children:
+                    child.create_tree(ul, best_solution)
     
     def save_result(self, node_solution):
         best_solution = [node_solution] + self.get_parents(node_solution)
-        best_solution = [bf.get_content() for bf in best_solution]
 
         page = etree.Element('html')
         doc = etree.ElementTree(page)
@@ -107,10 +98,10 @@ class Node():
         title.text = 'Resolução do problema'
 
         div = etree.SubElement(bodyElt, "div")
-        div.set("class", "tree")
+        div.set("class", "tree")  
 
         ul = etree.SubElement(div, 'ul')
-        self.create_tree(ul, self.get_parsed_tree(), best_solution)
+        self.create_tree(ul, best_solution)
 
         with open('result.html', 'wb') as arq:
             result = etree.tostring(page, pretty_print=True)

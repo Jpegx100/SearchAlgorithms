@@ -88,3 +88,19 @@ body {
 .best {
     background: #9fcff1;
 }
+
+table {
+	margin: 0 auto;
+	border-collapse: collapse;
+    background: gray;
+    border: gray 1px solid;
+}
+td {
+    width: 22px; 
+    height: 22px;
+    text-align: center;
+}
+
+tr:nth-child(odd) td:nth-child(even), tr:nth-child(even) td:nth-child(odd) {
+	background: white;
+}

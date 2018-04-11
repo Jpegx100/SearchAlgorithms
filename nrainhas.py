@@ -25,6 +25,17 @@ class NRainhasNode(Node):
         
         return matrixes
     
+    def get_content(self):
+        # import pdb;pdb.set_trace()
+        sliced = str(self.content).replace('[[', '<tr><td>') \
+                                    .replace(']]','</td></tr>') \
+                                    .replace('],', '</td></tr>') \
+                                    .replace('[', '<tr><td>') \
+                                    .replace(',','</td><td>') \
+                                    .replace('0', '') \
+                                    .replace('1', '♛')
+        return '<div><table>'+sliced+'</table></div>'
+    
     def get_queens_coord(self):
         queens_coord = []
         
@@ -91,15 +102,13 @@ def nrainhas(rainhas, busca, arquivo):
     root = NRainhasNode(content=matrix, father=None)
     
     if busca == 'profundidade':
-        result = root.breadth_first_search()
-    elif busca == 'largura':
         result = root.depth_first_search()
+    elif busca == 'largura':
+        result = root.breadth_first_search()
     else:
         result = root.best_first_search()
-    
-    print('Resultado::::')
-    print_tree(result)
 
+    root.save_result(result)
 
 if __name__ == '__main__':
     nrainhas()

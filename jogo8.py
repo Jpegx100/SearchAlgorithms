@@ -28,6 +28,10 @@ class Jogo8Node(Node):
         
         return total_distance
     
+    def get_content(self):
+        sliced = '<div>'+str(self.content).replace('], [', '<br />').replace('[', '').replace(']', '').replace(',','').replace('0', '_')+'</div>'
+        return sliced
+    
     def expand_nodes(self):
         matrix = self.content
         matrixes = []
@@ -85,9 +89,9 @@ def jogo_8(tabuleiro, busca, arquivo):
     root = Jogo8Node(content=matrix, father=None)
     
     if busca == 'profundidade':
-        result = root.breadth_first_search()
-    elif busca == 'largura':
         result = root.depth_first_search()
+    elif busca == 'largura':
+        result = root.breadth_first_search()
     else:
         result = root.best_first_search()
     
