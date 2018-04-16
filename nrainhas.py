@@ -26,7 +26,13 @@ class NRainhasNode(Node):
         return matrixes
     
     def get_content(self):
-        # import pdb;pdb.set_trace()
+        heu = ''
+        classe = ''
+        if self.algorithm in [Node.AESTRELA, Node.GULOSO]:
+            if self.heuristic_value == Node.VISITED:
+                classe = 'class="visited"'
+            heu = 'H = '+str(self.get_heuristic_value())
+
         sliced = str(self.content).replace('[[', '<tr><td>') \
                                     .replace(']]','</td></tr>') \
                                     .replace('],', '</td></tr>') \
@@ -34,7 +40,8 @@ class NRainhasNode(Node):
                                     .replace(',','</td><td>') \
                                     .replace('0', '') \
                                     .replace('1', '♛')
-        return '<div><table>'+sliced+'</table></div>'
+        content = '<div '+classe+'>'+heu+'<table>'+sliced+'</table></div>'
+        return content
     
     def get_queens_coord(self):
         queens_coord = []
@@ -93,9 +100,8 @@ class NRainhasNode(Node):
 
 @click.command()
 @click.option('--rainhas', default=4, type=click.INT, help='Número de rainhas para o problema')
-@click.option('--busca', default='profundidade', type=click.Choice(['profundidade', 'largura', 'a-estrela']), help='Tipo de algorítmo de busca a ser utilizado')
-@click.option('--arquivo', default='nrainhas', help='Nome do arquivo(sem extensão) contendo o resultado')
-def nrainhas(rainhas, busca, arquivo):
+@click.option('--busca', default='a-estrela', type=click.Choice(['profundidade', 'largura', 'a-estrela', 'guloso']), help='Tipo de algorítmo de busca a ser utilizado')
+def nrainhas(rainhas, busca):
     matrix = []
     for i in range(rainhas):
         matrix.append([0 for j in range(rainhas)])
@@ -105,6 +111,13 @@ def nrainhas(rainhas, busca, arquivo):
         result = root.depth_first_search()
     elif busca == 'largura':
         result = root.breadth_first_search()
+    elif busca == 'guloso':
+        repeated_states = []
+        visited_nodes = []
+        states_frontier = []
+        result = root.greedy_search(repeated_states, visited_nodes, states_frontier)
+        root.time = len(visited_nodes)
+        root.space = len(states_frontier)
     else:
         result = root.best_first_search()
 

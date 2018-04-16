@@ -89,6 +89,10 @@ body {
     background: #9fcff1;
 }
 
+.visited {
+    background: #daf9e0;
+}
+
 table {
 	margin: 0 auto;
 	border-collapse: collapse;
@@ -101,6 +105,16 @@ td {
     text-align: center;
 }
 
+.j8 {
+    background: white;
+    border: 1px solid #ccc;
+}
+
 tr:nth-child(odd) td:nth-child(even), tr:nth-child(even) td:nth-child(odd) {
 	background: white;
+}
+
+.empty{
+    background: #ccc !important;
+    border: 1px solid #ccc;
 }

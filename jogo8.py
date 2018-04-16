@@ -29,8 +29,23 @@ class Jogo8Node(Node):
         return total_distance
     
     def get_content(self):
-        sliced = '<div>'+str(self.content).replace('], [', '<br />').replace('[', '').replace(']', '').replace(',','').replace('0', '_')+'</div>'
-        return sliced
+        heu = ''
+        classe = ''
+        if self.algorithm in [Node.AESTRELA, Node.GULOSO]:
+            if self.heuristic_value == Node.VISITED:
+                classe = 'class="visited"'
+            heu = 'H = '+str(self.get_heuristic_value())
+
+        sliced = str(self.content).replace(' ', '') \
+                                    .replace('[[', '<tr><td class="j8">') \
+                                    .replace(']]','</td></tr>') \
+                                    .replace('],', '</td></tr>') \
+                                    .replace('[', '<tr><td class="j8">') \
+                                    .replace(',','</td><td class="j8">') \
+                                    .replace('0', '') \
+                                    .replace('<td class="j8"></td>', '<td class="empty"></td>')
+        content = '<div '+classe+'>'+heu+'<table>'+sliced+'</table></div>'
+        return content
     
     def expand_nodes(self):
         matrix = self.content
@@ -74,10 +89,9 @@ class Jogo8Node(Node):
 
 
 @click.command()
-@click.option('--tabuleiro', default='103425786', help='Tabuleiro inicial contendo todos os números entre 0 e 8 sem repetição(Ex:103726548)')
-@click.option('--busca', default='a-estrela', type=click.Choice(['profundidade', 'largura', 'a-estrela']), help='Tipo de algorítmo de busca a ser utilizado')
-@click.option('--arquivo', default='jogo8', help='Nome do arquivo(sem extensão) contendo o resultado')
-def jogo_8(tabuleiro, busca, arquivo):
+@click.option('--tabuleiro', default='103425786', help='Tabuleiro inicial contendo todos os números entre 0 e 8 sem repeticao(Ex:103726548)')
+@click.option('--busca', default='a-estrela', type=click.Choice(['profundidade', 'largura', 'a-estrela', 'guloso']), help='Tipo de algorítmo de busca a ser utilizado')
+def jogo_8(tabuleiro, busca):
     
     if len(tabuleiro)!=9:
         print('Tabuleiro em formato incorreto')
@@ -92,6 +106,13 @@ def jogo_8(tabuleiro, busca, arquivo):
         result = root.depth_first_search()
     elif busca == 'largura':
         result = root.breadth_first_search()
+    elif busca == 'guloso':
+        repeated_states = []
+        visited_nodes = []
+        states_frontier = []
+        result = root.greedy_search(repeated_states, visited_nodes, states_frontier)
+        root.time = len(visited_nodes)
+        root.space = len(states_frontier)
     else:
         result = root.best_first_search()
     
