@@ -2,3 +2,4 @@
 *.dot
 *.pyc
 settings.json
+*.html
